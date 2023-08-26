@@ -139,17 +139,18 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q0k0g"]
-size = Vector2(53, 84)
+size = Vector2(99.5, 144)
 
 [node name="Player" type="CharacterBody2D"]
+collision_mask = 6
 script = ExtResource("1_du702")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(24.5, 41.6812)
-scale = Vector2(0.1375, 0.1375)
+position = Vector2(49.75, 71.9094)
+scale = Vector2(0.24625, 0.240703)
 sprite_frames = SubResource("SpriteFrames_8jx1l")
 animation = &"down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(26, 43)
+position = Vector2(50.25, 72)
 shape = SubResource("RectangleShape2D_q0k0g")

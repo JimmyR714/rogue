@@ -3,6 +3,15 @@ extends CharacterBody2D
 var screen_size
 var speed = 300
 
+#auxiliary functions
+func create_timer(cooldown, function, num):
+	var timer = Timer.new()
+	add_child(timer)
+	timer.wait_time = cooldown
+	timer.one_shot = true
+	timer.timeout.connect(Callable(set_attack_ready).bind(num))
+	timer.start()
+
 #runs when it enters scene
 func _ready():
 	screen_size = get_viewport_rect().size
@@ -60,55 +69,99 @@ var util_1_ready = true
 var util_2_ready = true
 
 var atk_1 = {
-	"type": "melee",
+	"name": "claw",
 	"damage": 100,
-	"range": 20,
+	"range": 0,
 	"width": 5,
-	"knockback": 5
+	"length": 20,
+	"knockback": 5,
+	"time": 0.5,
+	"speed": 0,
+	"shape": "triangle",
+	"cooldown": 1
 }
 var atk_2 = {
-	"type": "ranged",
+	"name": "bullet",
 	"damage": 200,
 	"range": 1000,
 	"width": 5,
-	"knockback": 1
+	"length": 5,
+	"knockback": 1,
+	"time": 10,
+	"speed": 800,
+	"shape": "circle",
+	"cooldown": 0.3
 }
 
-
-func attack(type, damage, range, width, knockback):
-	pass
-	#create a triangle of area in which enemies should be hit
-	
-	#do damage to all of them accordingly
+func attack(atk):
+	var dir = calculate_attack_direction()
+	#create a projectile that can collide with enemies
+	var projectile = load("res://scenes/projectile.tscn").instantiate()
+	projectile.attack_name = atk["name"]
+	projectile.speed = atk["speed"]
+	projectile.shape = atk["shape"]
+	projectile.range = atk["range"]
+	projectile.width = atk["width"]
+	projectile.length = atk["length"]
+	projectile.time = atk["time"]
+	projectile.theta = dir
+	projectile.position = Vector2(position.x+50,position.y+75)
+	get_parent().add_child(projectile)
+	projectile.create()
 
 #choose the correct attack
 func choose_attack(num):
+	var attacked = false
 	if attack_ready:
+		#set specific attack stuff and do attack
 		if num==1 && attack_1_ready:
-			attack(atk_1["type"], atk_1["damage"], atk_1["range"], atk_1["width"], atk_1["knockback"])
+			attack(atk_1)
+			create_timer(atk_1["cooldown"], set_attack_ready, 1) #create number specific cooldown	
+			attack_1_ready = false
+			attacked = true
 		elif num==2 && attack_2_ready:
-			attack(atk_2["type"], atk_2["damage"], atk_2["range"], atk_2["width"], atk_2["knockback"])
+			attack(atk_2)
+			create_timer(atk_2["cooldown"], set_attack_ready, 2)
+			attack_2_ready = false
+			attacked = true
+		
+		#set general attack stuff	
+		if attacked:
+			create_timer(0.2, set_attack_ready, 0) #create general attack cooldown
+			attack_ready = false
+
+func set_attack_ready(num):
+	match num:
+		0:
+			attack_ready = true
+		1:
+			attack_1_ready = true
+		2:
+			attack_2_ready = true
 
 #choose correct util
 func choose_util(num):
 	pass
 
-#returns attack direction in degrees from north of character
+#returns attack direction in radians from north of character
+#includes constants used in character size
 func calculate_attack_direction():
 	var mouse = get_viewport().get_mouse_position()
 	var theta
-	if mouse.x < position.x:
-		if mouse.y >= position.y:
+	var x = position.x + 50
+	var y = position.y + 75
+	if mouse.x < x:
+		if mouse.y <= y:
 			#top left
-			theta = atan((mouse.y-position.y)/(mouse.x-position.x)) + 270
+			theta = atan((y-mouse.y)/(x-mouse.x)) + 3*PI/2
 		else:
 			#bottom left
-			theta = atan((position.y-mouse.y)/(mouse.x-position.x)) + 180
+			theta = atan((x-mouse.x)/(mouse.y-y)) + PI
 	else:
-		if mouse.y >= position.y:
-			#top left
-			theta = atan((mouse.y-position.y)/(position.x - mouse.x))
+		if mouse.y <= y:
+			#top right
+			theta = atan((mouse.x-x)/(y-mouse.y))
 		else:
-			#bottom left
-			theta = atan((position.y-mouse.y)/(position.x-mouse.x)) + 90
+			#bottom right
+			theta = atan((mouse.y-y)/(mouse.x-x)) + PI/2
 	return theta

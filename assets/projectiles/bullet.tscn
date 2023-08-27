@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://dtj1fup5dw7qd"]
+
+[ext_resource type="Texture2D" uid="uid://dvg341g6ggxfu" path="res://assets/projectiles/bullet.png" id="1_u4xmy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gkm53"]
+atlas = ExtResource("1_u4xmy")
+region = Rect2(214, 40, 432, 433)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5es0y"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gkm53")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="BulletSprite" type="AnimatedSprite2D"]
+position = Vector2(-2.27374e-13, 0)
+scale = Vector2(0.0462963, 0.0462963)
+sprite_frames = SubResource("SpriteFrames_5es0y")
+frame_progress = 0.932011
